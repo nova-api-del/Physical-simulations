@@ -31,7 +31,7 @@ jobs:
       - name: Save video artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ball-escape-\${{ github.run_number }}
+          name: ball-escape-${{ github.run_number }}
           path: |
             output.mp4
             metadata.json
@@ -40,16 +40,16 @@ jobs:
       - name: Publish MP4 as public release asset
         id: release
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="short-\${GITHUB_RUN_ID}"
-          gh release create "$TAG" output.mp4 --repo "$GITHUB_REPOSITORY" --title "Ball Escape \${GITHUB_RUN_NUMBER}" --notes "Automatically generated short."
-          echo "video_url=https://github.com/\${GITHUB_REPOSITORY}/releases/download/\${TAG}/output.mp4" >> "$GITHUB_OUTPUT"
+          TAG="short-$GITHUB_RUN_ID"
+          gh release create "$TAG" output.mp4 --repo "$GITHUB_REPOSITORY" --title "Ball Escape $GITHUB_RUN_NUMBER" --notes "Automatically generated short."
+          echo "video_url=https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/output.mp4" >> "$GITHUB_OUTPUT"
       - name: Schedule on YouTube Shorts and TikTok using Metricool
         env:
-          METRICOOL_API_TOKEN: \${{ secrets.METRICOOL_API_TOKEN }}
+          METRICOOL_API_TOKEN: ${{ secrets.METRICOOL_API_TOKEN }}
           METRICOOL_USER_ID: "6485386"
           METRICOOL_BLOG_ID: "8234676"
           METRICOOL_TIMEZONE: "Asia/Baghdad"
-          VIDEO_URL: \${{ steps.release.outputs.video_url }}
+          VIDEO_URL: ${{ steps.release.outputs.video_url }}
         run: python src/publish_metricool.py
