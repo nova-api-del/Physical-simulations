@@ -1,4 +1,4 @@
-name: Ball Escape - Generate and Publish
+name: Ball Escape - Generate and Publish # visual test trigger
 on:
   workflow_dispatch:
   push:
