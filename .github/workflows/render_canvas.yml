@@ -1,0 +1,45 @@
+name: Bouncing Ball Escape - Canvas Render
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["index.html","scripts/record.js",".github/workflows/render_canvas.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: canvas-render
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install browser and audio tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg xvfb pulseaudio
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
+      - name: Render canvas with sound
+        run: |
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=virtual_speaker
+          pactl set-default-sink virtual_speaker
+          xvfb-run -a --server-args="-screen 0 1080x1920x24" node scripts/record.js
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bouncing-ball-canvas-${{ github.run_number }}
+          path: output.mp4
+          retention-days: 7
+      - name: Publish public GitHub release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="canvas-$GITHUB_RUN_ID"
+          gh release create "$TAG" output.mp4 --repo "$GITHUB_REPOSITORY" --title "Canvas Ball Escape $GITHUB_RUN_NUMBER" --notes "Canvas simulation render."
