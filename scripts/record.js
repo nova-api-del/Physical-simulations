@@ -4,7 +4,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const waitExit=(proc,label)=>new Promise((resolve,reject)=>{proc.once('close',c=>c===0?resolve():reject(Error(label+' exit '+c)));proc.once('error',reject)});
 const drain=stream=>new Promise((resolve,reject)=>{stream.once('drain',resolve);stream.once('error',reject)});
 (async()=>{
-  const W=540,H=960,FPS=60,MAX_FRAMES=FPS*32;
+  const W=540,H=960,FPS=60,MAX_FRAMES=FPS*60;
   const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--autoplay-policy=no-user-gesture-required']});
   const page=await browser.newPage({viewport:{width:W,height:H},deviceScaleFactor:1});
   await page.goto('file://'+process.cwd()+'/index.html?offline=1&total=400&seconds=432');
