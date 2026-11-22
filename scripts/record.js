@@ -4,10 +4,10 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const waitExit=(proc,label)=>new Promise((resolve,reject)=>{proc.once('close',c=>c===0?resolve():reject(Error(label+' exit '+c)));proc.once('error',reject)});
 const drain=stream=>new Promise((resolve,reject)=>{stream.once('drain',resolve);stream.once('error',reject)});
 (async()=>{
-  const W=540,H=960,FPS=60,MAX_FRAMES=FPS*100;
+  const W=540,H=960,FPS=60,MAX_FRAMES=FPS*32;
   const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--autoplay-policy=no-user-gesture-required']});
   const page=await browser.newPage({viewport:{width:W,height:H},deviceScaleFactor:1});
-  await page.goto('file://'+process.cwd()+'/index.html?offline=1&total=400&seconds=420');
+  await page.goto('file://'+process.cwd()+'/index.html?offline=1&total=400&seconds=432');
   await page.waitForFunction(()=>!!window.__simAdvance);
   await page.mouse.click(8,8);
   await page.waitForTimeout(350);
@@ -17,11 +17,11 @@ const drain=stream=>new Promise((resolve,reject)=>{stream.once('drain',resolve);
   let progress={active:0,total:400},frames=0;
   try{
     while(frames<MAX_FRAMES){
-      progress=await page.evaluate(()=>window.__simAdvance(10));
+      progress=await page.evaluate(()=>window.__simAdvance(27));
       const jpg=await page.screenshot({type:'jpeg',quality:78,scale:'css'});
       if(!video.stdin.write(jpg))await drain(video.stdin);
       frames++;
-      if(progress.active>=progress.total){for(let i=0;i<30;i++){const hold=await page.screenshot({type:'jpeg',quality:90});if(!video.stdin.write(hold))await drain(video.stdin)}break}
+      if(progress.active>=progress.total){const finalFrame=await page.screenshot({type:'jpeg',quality:78,scale:'css'});while(frames<MAX_FRAMES){if(!video.stdin.write(finalFrame))await drain(video.stdin);frames++}break}
     }
     if(progress.active<progress.total)throw Error('Safety limit reached before completion: '+progress.active+'/'+progress.total);
     video.stdin.end();await waitExit(video,'video ffmpeg');
