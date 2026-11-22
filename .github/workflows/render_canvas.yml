@@ -30,7 +30,7 @@ jobs:
           pulseaudio --start --exit-idle-time=-1
           pactl load-module module-null-sink sink_name=virtual_speaker
           pactl set-default-sink virtual_speaker
-          xvfb-run -a --server-args="-screen 0 1080x1920x24" node scripts/record.js
+          xvfb-run -a --server-args="-screen 0 1080x2000x24" node scripts/record.js
       - name: Upload video artifact
         uses: actions/upload-artifact@v4
         with:
