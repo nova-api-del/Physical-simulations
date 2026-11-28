@@ -1,27 +1,33 @@
 # Ball Escape Auto Shorts
 
-This repository generates a vertical physics-style Ball Escape short and schedules it through Metricool.
+يصنع فيديو Short عمودي (1080×1920) لكرة تكسر حلقات حلزونية، بصوت مولّد، وينشره على يوتيوب.
 
-## Schedule
-- GitHub Actions runs every 2 hours at minute 15 (UTC).
-- The current renderer outputs 720x1280, 30 FPS, 30 seconds.
-- A public GitHub Release asset is created for each rendered MP4.
-- Metricool schedules the video to YouTube Shorts and TikTok in the Asia/Baghdad timezone.
+- كل تشغيل مختلف: كرة واحدة أو سباق كرتين، عدد الحلقات، الوقت، الألوان، وشكل الحلزون.
+- النشر التلقائي: 1:30 ظهراً و8:30 مساءً بتوقيت العراق (GitHub ممكن يتأخر بالمواعيد).
+- بدون مفاتيح يوتيوب: يصنع الفيديو فقط ويحفظه 7 أيام ضمن التشغيل.
 
-## One-time Metricool setup
-1. Metricool API access is available on Advanced and Custom plans. In Metricool, open Account Settings → API and copy the REST API access token.
-2. In this GitHub repository, open Settings → Secrets and variables → Actions → New repository secret.
-3. Add a secret named METRICOOL_API_TOKEN and paste the Metricool token as its value. Never put the token in source code or commit it.
-4. Ensure GitHub Actions is enabled for this repository.
+## الإعداد من الموبايل (مرة واحدة)
 
-The connected Metricool brand configured here is blogId 8234676 and userId 6485386. Do not change these unless the target brand changes.
+1. بموقع console.cloud.google.com اختر مشروعك وفعّل **YouTube Data API v3**.
+2. بصفحة OAuth consent خلّي حالة التطبيق **In production** (بوضع Testing ينتهي التوكن بعد 7 أيام).
+3. من Credentials أنشئ **OAuth client ID** نوعه **Web application**، وأضف Redirect URI:
+   `https://developers.google.com/oauthplayground`
+4. افتح developers.google.com/oauthplayground ثم ⚙️ وفعّل **Use your own OAuth credentials** وضع الـID والـSecret.
+5. بخانة النطاق اكتب `https://www.googleapis.com/auth/youtube.upload` ثم **Authorize APIs**،
+   واختر **قناة الألعاب** (وليس قناة أخرى).
+6. اضغط **Exchange authorization code for tokens** وانسخ **Refresh token**.
+7. بالمستودع: Settings → Secrets and variables → Actions، وأضف:
+   `YOUTUBE_CLIENT_ID` و `YOUTUBE_CLIENT_SECRET` و `YOUTUBE_REFRESH_TOKEN`
 
-If METRICOOL_API_TOKEN is missing, generation and artifact/release creation still run, but publication is skipped.
+**لا تضع المفاتيح داخل أي ملف ولا ترسلها بمحادثة.**
 
-## Manual run
-Open the Actions tab, choose “Ball Escape - Generate and Publish”, then select “Run workflow”.
+## التجربة
+Actions ← Ball Escape - Generate and Publish ← Run workflow، واختر `private` لأول مرة.
 
-## Files
-- src/simulator.py — procedural ring/ball simulation and original synthesized impact sounds
-- src/publish_metricool.py — Metricool scheduler integration
-- .github/workflows/auto_publish.yml — two-hour generation and publication workflow
+> إذا كان مشروع Google جديداً وغير مدقَّق، قد يقفل يوتيوب الفيديوهات المرفوعة عبر الـAPI على «خاص»
+> حتى لو اخترت عام. وقتها يلزم تقديم طلب تدقيق API إلى يوتيوب.
+
+## الملفات
+- `src/simulator.py` — المحاكاة والصوت والعنوان
+- `src/publish_youtube.py` — الرفع على يوتيوب
+- `src/publish_metricool.py` — قديم، لم يعد مستخدماً بسير العمل
